@@ -1,0 +1,32 @@
+	// Format: "user:password@tcp(host:port)/dbname"
+	dsn := "root:@tcp(127.0.0.1:3380)/new_seantks_db"
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal("Error opening DB:", err)
+	}
+	defer db.Close()
+
+	// Verify the connection
+	if err := db.Ping(); err != nil {
+		log.Fatal("Cannot connect to DB:", err)
+	}
+	fmt.Println("Connected to MySQL!")
+
+	// Execute a query
+	rows, err := db.Query("SELECT empi_id, empi_lname FROM tks_employee_info LIMIT 0, 20")
+	if err != nil {
+		log.Fatal("Query error:", err)
+	}
+	defer rows.Close()
+
+	// Iterate over results
+	for rows.Next() {
+		var id int
+		var name string
+
+		if err := rows.Scan(&id, &name); err != nil {
+			log.Fatal("Scan error:", err)
+		}
+		fmt.Printf("ID: %d | Name: %s\n", id, name)
+	}
